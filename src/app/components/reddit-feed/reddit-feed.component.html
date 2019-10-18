@@ -1,0 +1,163 @@
+<div class="container">
+
+  <div class="text-center">
+    <img src="../../../assets/images/banner.png" class="img-fluid" alt="banner" #scrollTop>
+    <br><br>
+    <h5>
+      Posts from <i>r/{{ selectedSubreddit }}</i>
+    </h5>
+  </div>
+  <br>
+
+  <div *ngIf="!printable">
+    <div class="centered">
+      <form class="form-inline">
+        <!-- SUBs -->    
+        <div class="form-group mb-2">
+          <label class="col-sm-3 control-label" for="sub">Subreddit</label>
+          <select class="form-control" (change)="onChangeSub($event)" [(ngModel)]="selectedSubreddit" name="sub">
+            <option *ngFor="let s of subreddits" [value]="s.id">{{s.name}}</option>
+          </select>
+        </div>
+        <!-- SORT -->
+        <div class="form-group mx-sm-3 mb-2">
+          <label class="col-sm-3 control-label" for="sort">Sort</label>
+          <select class="form-control" (change)="onChangeSort($event)" [(ngModel)]="selectedSort" name="sort">
+            <option *ngFor="let s of sorts" [value]="s.id">{{s.name}}</option>
+          </select>
+        </div>
+        <!-- LIMIT -->
+        <div class="form-group mx-sm-3 mb-2">
+          <label class="col-sm-4 control-label" for="lim">Limit</label>
+          <select class="form-control" (change)="onChangeLimit($event)" [(ngModel)]="selectedLimit" name="lim">
+            <option *ngFor="let l of limits" [value]="l.id">{{l.name}}</option>
+          </select>
+        </div>
+      </form>
+    </div>
+    <div class="centered">    
+      <form class="form-inline">
+        <!-- CONTENT TYPE -->
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" [(ngModel)]="showText" (change)="changeTxtVisibility($event)" id="ckbText" name="showText">
+          <label class="form-check-label" for="ckbText">Text</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" [(ngModel)]="showImage" (change)="changeImgVisibility($event)" id="ckbImage" name="showImage">
+          <label class="form-check-label" for="ckbImage">Images</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" id="ckbVideo" name="video" disabled>
+          <label class="form-check-label" for="ckbVideo">Videos (Not supported yet)</label>
+        </div>
+      </form>
+    </div>
+  </div>
+  <br>
+  <div class="row centred">
+    <!-- Print number of posts found -->
+    <div class="card-text col-9">
+      <small class="text-muted">
+        <i>
+          {{ posts.length }} Posts Found out of {{ selectedLimit }}
+          <span *ngIf="posts.length < selectedLimit">
+              (the missing ones are either comments or Videos, please increase the limit to see more)
+          </span>
+        </i>
+      </small>
+    </div>
+    <!-- Printable version checkbox -->
+    <div class="form-check form-check-inline col flush-right">
+      <input class="form-check-input" type="checkbox" [(ngModel)]="printable" (change)="changePrintable($event)" id="ckbPrintable" name="printable">
+      <label class="form-check-label" for="ckbPrintable">Printable Version</label>
+    </div>
+  </div>
+  <br>
+
+  <div *ngFor="let post of posts; index as i">
+    <!-- if Text -->
+    <div *ngIf="post.isText && showText">
+      <div class="card">
+        <div class="card-header">
+          <h5>{{ i+1 }}. {{ post.title }}</h5>
+        </div>
+        <div class="card-body">
+          <div *ngIf="!printable">
+            <p class="card-title miniInfo">
+              <span *ngIf="post.isGilded" class="badge badge-warning">Gilded</span>
+              Posted by <a href="https://www.reddit.com/user/{{ post.user }}" target="_blank" class="badge badge-info">{{ post.user }}</a> - 
+              Score: <span class="badge badge-pill badge-success">{{ post.score }}</span>
+              <a [href]="post.link" target="_blank" class="float-right">Original post</a> 
+            </p>
+          </div>
+          <div *ngIf="post.content">
+            <div markdown ngPreserveWhitespaces>
+              <p class="card-text">{{ post.content }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- if image -->
+    <div *ngIf="post.isImage && showImage">
+      <div class="card">
+        <div class="card-header">
+          <h5>{{ i+1 }}. {{ post.title }}</h5>
+        </div>
+        <div class="card-body">
+          <p class="card-title miniInfo">
+            <span *ngIf="post.isGilded" class="badge badge-warning">Gilded</span>
+            Posted by <a href="https://www.reddit.com/user/{{ post.user }}" target="_blank" class="badge badge-info">{{ post.user }}</a> - 
+            Score: <span class="badge badge-pill badge-success">{{ post.score }}</span>
+            <a [href]="post.link" target="_blank" class="float-right">Original post</a> 
+          </p>
+          
+          <img [src]="post.content" class="img-fluid" alt="Responsive image">
+        </div>
+      </div>
+    </div>
+    <!-- if video -->
+    <div *ngIf="post.isVideo && showVideo">
+      <div class="card">
+        <div class="card-header">
+          <h5>{{ i+1 }}. {{ post.title }}</h5>
+        </div>
+        <div class="card-body">
+          <div *ngIf="!printable">
+            <p class="card-title miniInfo">
+              Posted by <a href="https://www.reddit.com/user/{{ post.user }}" target="_blank" class="badge badge-info">{{ post.user }}</a> - 
+              Score: <span class="badge badge-pill badge-success">{{ post.score }}</span>
+              <a [href]="post.link" target="_blank" class="float-right">Original post</a> 
+            </p>
+          </div>
+          <!-- TODO : This part should be detailed -->
+          {{ post.content }}
+          <div class="embed-responsive embed-responsive-16by9">
+            <iframe class="embed-responsive-item" [src]="post.content | safe"></iframe>
+          </div>
+          <!-- TODO : imgur compatible iframe
+          <blockquote class="imgur-embed-pub" lang="en" data-id="a/8Rrx8fu" data-context="false">
+            <a href="//imgur.com/8Rrx8fu">How many years? How many miles?</a>
+          </blockquote>
+          <script async src="//s.imgur.com/min/embed.js" charset="utf-8"></script>
+          
+          <div class="embed-responsive embed-responsive-16by9">
+            <video controls preload="auto" autoplay="autoplay" loop="loop">
+                <source src="{{ post.content }}" type="video/mp4">
+                Sorry, your browser doesn't support embedded videos.
+            </video>
+          </div>
+          -->
+        </div>
+      </div>
+    </div>
+    <br/>
+  </div>
+
+  <div class="container-fluid row mx-auto px-2 my-2">
+    <div (click)="gotoTop()" class="btt-btn"><fa name="chevron-up"></fa></div>
+  </div>
+
+  
+</div>
+

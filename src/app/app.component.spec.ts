@@ -20,16 +20,16 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have as title 'redditFetcher'`, () => {
+  it(`should have as title 'reddit-posts'`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.debugElement.componentInstance;
-    expect(app.title).toEqual('redditFetcher');
+    expect(app.title).toEqual('reddit-posts');
   });
 
   it('should render title in a h1 tag', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('h1').textContent).toContain('Welcome to redditFetcher!');
+    expect(compiled.querySelector('h1').textContent).toContain('Welcome to reddit-posts!');
   });
 });
